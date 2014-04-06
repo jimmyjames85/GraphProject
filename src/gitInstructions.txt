@@ -31,13 +31,17 @@ git push -u origin master
 
 
 //////
+Create empty GitHub repository
+
 Create project
-in root directory run
+
+In project root directory (from terminal) run
+
 git init
-git add
+git add ProjectName.iml
+git commit -m "first commit"
+git remote add origin https://github.com/jimmyjames85/ProjectName.git
+git push -u origin master
 
+Then In IntelliJ -> Project Settings -> VCS -> add git root
 
-
-project settings
-VCS
-add git root
