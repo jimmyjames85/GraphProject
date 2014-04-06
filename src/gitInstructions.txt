@@ -35,3 +35,9 @@ Create project
 in root directory run
 git init
 git add
+
+
+
+project settings
+VCS
+add git root
