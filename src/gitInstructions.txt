@@ -1,0 +1,37 @@
+
+
+Create Project
+Create Plain Git project in root directory
+in the root run
+git remote add origin https://github.com/jimmyjames85/locationOfGit.git
+This maps 'https://gith...' to origin
+
+Create Empty Git project on git hub
+
+After any commits you can manually run
+git push origin master
+or run push from your intelliJ which will push to origin automatically
+
+To get any updates remotely call pull from ItelliJ's git menu and updates will be applied
+
+
+
+touch README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/jimmyjames85/GraphTheory.git
+git push -u origin master
+
+Push an existing repository from the command line
+
+git remote add origin https://github.com/jimmyjames85/GraphTheory.git
+git push -u origin master
+
+
+
+//////
+Create project
+in root directory run
+git init
+git add
