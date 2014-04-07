@@ -22,6 +22,7 @@ From a terminal inside the project root directory run the following commands
 
 git init
 git add ProjectName.iml
+git add src (or whatever you want to add)
 git commit -m "first commit"
 git remote add origin https://github.com/user_name/ProjectName.git
 git push -u origin master
