@@ -1,56 +1,42 @@
+Create empty GitHub repository
 
-
-Create Project
-Create Plain Git project in root directory
-in the root run
-git remote add origin https://github.com/jimmyjames85/locationOfGit.git
-This maps 'https://gith...' to origin
-
-Create Empty Git project on git hub
-
-After any commits you can manually run
-git push origin master
-or run push from your intelliJ which will push to origin automatically
-
-To get any updates remotely call pull from ItelliJ's git menu and updates will be applied
-
-
+It should give you instructions that look like
 
 touch README.md
 git init
 git add README.md
 git commit -m "first commit"
-git remote add origin https://github.com/jimmyjames85/GraphTheory.git
+git remote add origin https://github.com/user_name/ProjectName.git
 git push -u origin master
 
 Push an existing repository from the command line
 
-git remote add origin https://github.com/jimmyjames85/GraphTheory.git
+git remote add origin https://github.com/user_name/ProjectName.git
 git push -u origin master
 
+//////////////////////////////////////////////////////////////////////////////
 
+Create IntelliJ Project
 
-//////
-Create empty GitHub repository
-
-Create project
-
-In project root directory (from terminal) run
+From a terminal inside the project root directory run the following commands
 
 git init
 git add ProjectName.iml
 git commit -m "first commit"
-git remote add origin https://github.com/jimmyjames85/ProjectName.git
+git remote add origin https://github.com/user_name/ProjectName.git
 git push -u origin master
 
 Then In IntelliJ -> Project Settings -> VCS -> add git root
 
-///////
-Then from a diff computer
+//////////////////////////////////////////////////////////////////////////////
 
-InteliJ create new project from CVS->GitHub
-Select Project Follow the Wizard and
-Click Yes to overwrite existing Module
-This is why we added PojectName.iml previously
+Then to clone the project from a different computer
 
+Open InteliJ and create new project from CVS->GitHub
+Follow the Wizard and select the desired project
+Click Yes to overwrite existing Module (This is why we added PojectName.iml previously)
 
+Then from any computer you can always call on the root
+Git->Pull
+Git->Commit & Push
+and it should pull any necessary updates :-)
