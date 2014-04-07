@@ -45,3 +45,12 @@ git push -u origin master
 
 Then In IntelliJ -> Project Settings -> VCS -> add git root
 
+///////
+Then from a diff computer
+
+InteliJ create new project from CVS->GitHub
+Select Project Follow the Wizard and
+Click Yes to overwrite existing Module
+This is why we added PojectName.iml previously
+
+
