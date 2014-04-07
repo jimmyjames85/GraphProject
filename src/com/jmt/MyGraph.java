@@ -213,7 +213,7 @@ public class MyGraph<V, E> implements Graph<V, E>
                 // (the child has not yet been proccessed OR we are directed graph)
 
 
-                //                               TODO left of here
+                //                               TODO left of here need to test that cur.getEdgesOut is sorted
                 //if( (cur.getDFSParent().getUID() != cur.getEdgesOut().get(cur.getDfsCurChild()).getUID()) && cur.getEdgesOut().get(cur.
                 //if ((cur.parent != neighbors.get(cur.curChild) && neighbors.get(cur.curChild).parent != cur) && (neighbors.get(cur.curChild).state != Node.PROCESSED || isDirected))
                 //  processEdge(cur, neighbors.get(cur.curChild));
