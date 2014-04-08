@@ -30,7 +30,7 @@ public class IdentifiableSet implements Set<Identifiable>
         idSet = new IntegerSet();
     }
 
-    public Identifiable findByUID(int uid)
+    private Identifiable findByUID(int uid)
     {
         int loc = findRec(uid, 0, size() - 1);
 
@@ -40,6 +40,14 @@ public class IdentifiableSet implements Set<Identifiable>
         return null;
     }
 
+    public Identifiable getIdentifiableByID(int uID)
+    {
+        Identifiable ret = findByUID(uID);
+        if(ret==null)
+            throw new IllegalArgumentException("Invalid id " +uID);
+
+        return ret;
+    }
 
     private int findRec(int uid, int left, int right)
     {

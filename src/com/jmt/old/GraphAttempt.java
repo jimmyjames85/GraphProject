@@ -226,7 +226,6 @@ public class GraphAttempt<E extends Comparable<? super E>>
             // explore it
             if (cur.curChild < cur.neighbors.size())
             {
-
                 processEdge(cur, neighbors.get(cur.curChild));
                 if (neighbors.get(cur.curChild).state == Node.UNDISCOVERED)
                 {

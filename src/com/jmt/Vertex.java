@@ -17,52 +17,32 @@ public class Vertex<V, E> implements Identifiable
 
     private MyGraph<V, E> parentGraph;
 
-    //Discovery state of the Node
-    private int state;
 
-    //DFS
+
+
+    //DFS protected Variables
     //used to keep track of the the current child this vertex is exploring
-    private int dfsCurChild;
+    protected int dfsCurChild;
+    protected int dfsDiscovererVID;//id of the vertex that discovered this vertex
+    protected int dfsDiscoverTime;
+    protected int dfsProcessTime;
+    protected int dfsState;
 
-    private Vertex<V, E> dfsParent;
-
-    private int discoverTime;
-
+    //Member Data
     private int vUID;
     private V data;
-
     private IntegerSet edgeIDsIn, edgeIDsOut, edgeIDsAll;
-
-
     private ArrayList<Edge<V, E>> edgesIn;
     private ArrayList<Edge<V, E>> edgesOut;
 
-    public int getDfsCurChild()
-    {
-        return dfsCurChild;
-    }
 
-    public void setDfsCurChild(int dfsCurChild)
-    {
-        this.dfsCurChild = dfsCurChild;
-    }
-
-    public int getDiscoverTime()
-    {
-        return discoverTime;
-    }
-
-    public void setDiscoverTime(int discoverTime)
-    {
-        this.discoverTime = discoverTime;
-    }
 
 
     public Vertex(V data, MyGraph<V, E> parentGraph)
     {
         this.parentGraph = parentGraph;
 
-        initializeForSearch();
+        initializeDFSSearch();
         this.data = data;
         vUID = nextVertexID++;
 
@@ -77,12 +57,14 @@ public class Vertex<V, E> implements Identifiable
     }
 
 
-    public void initializeForSearch()
-    {
-        dfsParent = null;
-        state = UNDISCOVERED;
-        dfsCurChild = 0;
 
+    public void initializeDFSSearch()
+    {
+        dfsDiscovererVID = -1;//null
+        dfsDiscoverTime=1;
+        dfsProcessTime=1;
+        dfsCurChild = 0;
+        dfsState = UNDISCOVERED;
     }
 
     @Override
@@ -91,27 +73,6 @@ public class Vertex<V, E> implements Identifiable
         return vUID;
     }
 
-
-    public void setDFSParent(Vertex<V, E> p)
-    {
-        this.dfsParent = p;
-    }
-
-    public Vertex<V, E> getDFSParent()
-    {
-        return dfsParent;
-    }
-
-    public int getState()
-    {
-        return state;
-    }
-
-    public void setState(int status)
-    {
-        if (status == UNDISCOVERED || status == DISCOVERED || status == PROCESSED)
-            this.state = status;
-    }
 
 
     private int findEdge(ArrayList<Edge<V, E>> arr, int eID)

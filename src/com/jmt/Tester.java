@@ -74,7 +74,8 @@ public class Tester
         MyGraph<Coordinate, Street> simpleGraph;
         try
         {
-            simpleGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/ames.txt");
+            simpleGraph = GraphFactory.loadGraph("C:/Users/jim/IdeaProjects/GraphProject/src/simpleGraph.txt");
+            ///home/jim/IdealProjects/GraphProject/src/ames.txt");
 
         } catch (Exception e)
         {
@@ -83,41 +84,8 @@ public class Tester
         }
 
 
-        String save = "";
 
-        //"/home/jim/IdealProjects/GraphProject/src/simpleGraph.txt");
-
-
-        Iterator<Integer> itr = simpleGraph.getVertices().iterator();
-
-
-        int sumDeg = 0;
-        while (itr.hasNext())
-        {
-
-            int vID = itr.next();
-            int deg = simpleGraph.getDegreeIn(vID) + simpleGraph.getDegreeOut(vID);
-
-
-            if (deg != simpleGraph.getEdgesOf(vID).size())
-                System.out.println("VID " + vID);
-
-            // int deg = simpleGraph.getEdgesOf(vID).size();
-            sumDeg += deg;
-        }
-
-        System.out.println("sumDeg=" + sumDeg);
-
-
-//        System.out.println(simpleGraph.getSource(3059) + "," + simpleGraph.getTarget(3059));
-
-        while(itr.hasNext())
-            System.out.print(" " + itr.next());
-
-        System.out.println();
-
-
-
+        simpleGraph.doExhaustiveDFS();
 
 
     }
