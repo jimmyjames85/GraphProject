@@ -74,15 +74,13 @@ public class Tester
         MyGraph<Coordinate, Street> simpleGraph;
         try
         {
-            simpleGraph = GraphFactory.loadGraph("C:/Users/jim/IdeaProjects/GraphProject/src/simpleGraph.txt");
-            ///home/jim/IdealProjects/GraphProject/src/ames.txt");
-
+            simpleGraph = GraphFactory.loadGraph("/home/jim/IdeaProjects/GraphProject/src/ames.txt");
         } catch (Exception e)
         {
             System.out.println("Unable to open graph file");
+            System.out.println(e.getMessage());
             return;
         }
-
 
 
         simpleGraph.doExhaustiveDFS();

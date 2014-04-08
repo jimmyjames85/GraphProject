@@ -189,6 +189,8 @@ public class MyGraph<V, E> implements Graph<V, E>
 
     public void doExhaustiveDFS()
     {
+
+        //TODO count partitions of ames.txt
         Iterator<Identifiable> itr = vertexList.iterator();
         while(itr.hasNext())
         {
