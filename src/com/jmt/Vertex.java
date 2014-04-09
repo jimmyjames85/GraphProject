@@ -11,38 +11,43 @@ public class Vertex<V, E> implements Identifiable
     private static int nextVertexID = 1;
 
     //Node states for DFS and BFS
-    public final static int UNDISCOVERED = 1;
+    public enum DiscoverState
+    {
+        UNDISCOVERED, DISCOVERED, PROCESSED
+    }
+
+
+/*    public final static int UNDISCOVERED = 1;
     public final static int DISCOVERED = 2;
     public final static int PROCESSED = 4;
+    */
 
     private MyGraph<V, E> parentGraph;
 
 
-
-
-    //DFS protected Variables
+    //graph search protected Variables
     //used to keep track of the the current child this vertex is exploring
-    protected int dfsCurChild;
-    protected int dfsDiscovererVID;//id of the vertex that discovered this vertex
-    protected int dfsDiscoverTime;
-    protected int dfsProcessTime;
-    protected int dfsState;
+    protected int searchCurChild;
+    protected int searchDiscovererVID;//id of the vertex that discovered this vertex
+    protected int searchDiscoverTime;
+    protected int searchProcessTime;
+    protected DiscoverState searchState;
 
     //Member Data
     private int vUID;
     private V data;
     private IntegerSet edgeIDsIn, edgeIDsOut, edgeIDsAll;
+    //TODO directional or bidirectional graph means we only need one edges set AND we should modify the Edge class to have the options of being bidirectional or directional
+
     private ArrayList<Edge<V, E>> edgesIn;
     private ArrayList<Edge<V, E>> edgesOut;
-
-
 
 
     public Vertex(V data, MyGraph<V, E> parentGraph)
     {
         this.parentGraph = parentGraph;
 
-        initializeDFSSearch();
+        initializeSearch();
         this.data = data;
         vUID = nextVertexID++;
 
@@ -57,14 +62,18 @@ public class Vertex<V, E> implements Identifiable
     }
 
 
-
-    public void initializeDFSSearch()
+    public DiscoverState getState()
     {
-        dfsDiscovererVID = -1;//null
-        dfsDiscoverTime=1;
-        dfsProcessTime=1;
-        dfsCurChild = 0;
-        dfsState = UNDISCOVERED;
+        return searchState;
+    }
+
+    public void initializeSearch()
+    {
+        searchDiscovererVID = -1;//null
+        searchDiscoverTime = 1;
+        searchProcessTime = 1;
+        searchCurChild = 0;
+        searchState = DiscoverState.UNDISCOVERED;
     }
 
     @Override
@@ -72,7 +81,6 @@ public class Vertex<V, E> implements Identifiable
     {
         return vUID;
     }
-
 
 
     private int findEdge(ArrayList<Edge<V, E>> arr, int eID)

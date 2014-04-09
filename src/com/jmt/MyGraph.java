@@ -1,9 +1,6 @@
 package com.jmt;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by jim on 4/2/14.
@@ -12,24 +9,31 @@ public class MyGraph<V, E> implements Graph<V, E>
 {
 
     //These are for DFS and BFS
-    private ArrayList<EdgeProcessor<V, E>> edgeProcessors;
-    private ArrayList<VertexProcessor<V, E>> vertexProcessors;
+    private ArrayList<GraphSearchProcessor<V, E>> graphSearchProcessors;
+
 
     private IdentifiableSet vertexList;
     private IdentifiableSet edgeList;
 
 
+    private boolean isDirected;
+
+
     private int searchTime;
 
 
-    public MyGraph()
+    public MyGraph(boolean isDirected)
     {
 
         vertexList = new IdentifiableSet();
         edgeList = new IdentifiableSet();
 
-        edgeProcessors = new ArrayList<EdgeProcessor<V, E>>();
-        vertexProcessors = new ArrayList<VertexProcessor<V, E>>();
+        graphSearchProcessors = new ArrayList<GraphSearchProcessor<V, E>>();
+    }
+
+    public boolean isDirected()
+    {
+        return isDirected;
     }
 
 
@@ -37,23 +41,21 @@ public class MyGraph<V, E> implements Graph<V, E>
     //TODO make private???
     public Vertex<V, E> getVertex(int vID) throws IllegalArgumentException
     {
-        return (Vertex<V,E>)vertexList.getIdentifiableByID(vID);
+        return (Vertex<V, E>) vertexList.getIdentifiableByID(vID);
     }
-
-
 
 
     //Big O lg n
     private Edge<V, E> getEdge(int eID) throws IllegalArgumentException
     {
-        return (Edge<V,E>)vertexList.getIdentifiableByID(eID);
+        return (Edge<V, E>) vertexList.getIdentifiableByID(eID);
     }
 
 
     @Override
     public int addVertex(V data)
     {
-        Vertex<V,E> v = new Vertex<V, E>(data,this);
+        Vertex<V, E> v = new Vertex<V, E>(data, this);
         vertexList.add(v);
         return v.getUID();
     }
@@ -82,6 +84,8 @@ public class MyGraph<V, E> implements Graph<V, E>
         //TODO is it possible these vertices already have these edges registered
         if (!target.addEdgeIn(newEdge))
             throw new IllegalArgumentException("AlreadyExisits???");
+
+
 
 
         edgeList.add(newEdge);
@@ -146,58 +150,137 @@ public class MyGraph<V, E> implements Graph<V, E>
     }
 
 
-    public void addVertexProcessor(VertexProcessor<V, E> proc)
+    public void addGraphSearchProcessor(GraphSearchProcessor<V, E> proc)
     {
-        if (!vertexProcessors.contains(proc))
-            vertexProcessors.add(proc);
+        if (!graphSearchProcessors.contains(proc))
+            graphSearchProcessors.add(proc);
     }
 
-    public void addEdgeProcessor(EdgeProcessor<V, E> proc)
+    public void removeGraphSearchProcessor(GraphSearchProcessor<V, E> proc)
     {
-        if (!edgeProcessors.contains(proc))
-            edgeProcessors.add(proc);
+        if (graphSearchProcessors.contains(proc))
+            graphSearchProcessors.remove(proc);
+
     }
 
-    private int sTabs = 0;
-    private String tabs(int t)
-    {
-        if (t < 0)
-            return "";
 
-        String tab = "";
-        for (int i = 0; i < t; i++)
-            tab += "\t";
-        return tab;
-    }
-
-    private void processVertexEarly(Vertex<V, E> v)
+    private void processVertexEarly(Vertex<V, E> vertex)
     {
-        System.out.println(tabs(sTabs++) + "early: " + v.getUID());
+        for (GraphSearchProcessor gsp : graphSearchProcessors)
+            gsp.processVertexEarly(this, vertex);
+
 
     }
 
     private void processEdge(Edge<V, E> edge)
     {
-        System.out.println(tabs(sTabs) + " edge: " + edge.getSource().getUID() + " -> " + edge.getTarget().getUID());
+        for (GraphSearchProcessor gsp : graphSearchProcessors)
+            gsp.processEdge(this, edge);
+
+
     }
 
     private void processVertexLate(Vertex<V, E> v)
     {
-        System.out.println(tabs(--sTabs) + " late: " + v.getUID());
+        for (GraphSearchProcessor gsp : graphSearchProcessors)
+            gsp.processVertexLate(this, v);
+    }
+
+
+    public void doExhaustiveBFS()
+    {
+        initializeSearch();
+
+        Iterator<Identifiable> itr = vertexList.iterator();
+        while (itr.hasNext())
+        {
+            Vertex<V, E> v = (Vertex<V, E>) itr.next();
+            if (v.searchState == Vertex.DiscoverState.UNDISCOVERED)
+                doBFS((v.getUID()));
+        }
+
+    }
+
+
+    public void doBFS(int startVID) throws IllegalArgumentException
+    {
+        Vertex<V, E> cur = getVertex(startVID);
+
+        //Visit starting node
+        cur.searchDiscovererVID = -1; //null
+        cur.searchDiscoverTime = searchTime++;
+        cur.searchState = Vertex.DiscoverState.DISCOVERED;
+
+        ArrayDeque<Vertex<V, E>> queue = new ArrayDeque<Vertex<V, E>>();
+        queue.add(cur);
+
+        while (!queue.isEmpty())
+        {
+
+
+            cur = queue.pop();
+            processVertexEarly(cur);
+
+
+            ArrayList<Edge<V, E>> neighborsOut = cur.getEdgesOut();
+
+            //neighborsOut is sorted in order by uid
+
+            for (int i = 0; i < neighborsOut.size(); i++)
+            {
+                Vertex<V, E> curTarget = neighborsOut.get(i).getTarget();
+                if (curTarget.searchState != Vertex.DiscoverState.PROCESSED || isDirected) // || isDirected
+                    processEdge(neighborsOut.get(i));
+
+                if (curTarget.searchState == Vertex.DiscoverState.UNDISCOVERED)
+                {
+                    curTarget.searchState = Vertex.DiscoverState.DISCOVERED;
+                    curTarget.searchDiscoverTime = searchTime++;
+                    curTarget.searchDiscovererVID = cur.getUID();
+                    queue.add(curTarget);
+                }
+            }
+
+            //we've processed this node now
+            cur.searchProcessTime = searchTime++;
+            cur.searchState = Vertex.DiscoverState.PROCESSED;
+            processVertexLate(cur);
+        }
+    }
+
+
+    public ArrayList<Vertex<V, E>> findShortestPath(int vIDfrom, int vIDto) throws IllegalArgumentException
+    {
+        initializeSearch();
+        doBFS(vIDfrom);//TODO write doBFS/DFS(fromVID, stopSearchAtvID);
+
+        ArrayList<Vertex<V, E>> ret = new ArrayList<Vertex<V, E>>();
+        Vertex<V, E> cur = getVertex(vIDto);
+
+
+        ret.add(cur);
+        while (cur.searchDiscovererVID != -1)
+        {
+            cur = getVertex(cur.searchDiscovererVID);
+            ret.add(cur);
+        }
+
+        return ret;
     }
 
 
     public void doExhaustiveDFS()
     {
+        initializeSearch();
 
-        //TODO count partitions of ames.txt
         Iterator<Identifiable> itr = vertexList.iterator();
-        while(itr.hasNext())
+        while (itr.hasNext())
         {
-            Vertex<V,E> v = (Vertex<V,E>)itr.next();
-            if(v.dfsState==Vertex.UNDISCOVERED)
+            Vertex<V, E> v = (Vertex<V, E>) itr.next();
+            if (v.searchState == Vertex.DiscoverState.UNDISCOVERED)
                 doDFS((v.getUID()));
         }
+
     }
 
     public void doDFS(int startVID) throws IllegalArgumentException
@@ -211,11 +294,11 @@ public class MyGraph<V, E> implements Graph<V, E>
         while (!stack.isEmpty())
         {
             cur = stack.peek();
-            if (cur.dfsState == Vertex.UNDISCOVERED)
+            if (cur.searchState == Vertex.DiscoverState.UNDISCOVERED)
             {
-                cur.dfsDiscovererVID = lastDiscovererVID;
-                cur.dfsDiscoverTime = searchTime++;
-                cur.dfsState = Vertex.DISCOVERED;//visit vertex
+                cur.searchDiscovererVID = lastDiscovererVID;
+                cur.searchDiscoverTime = searchTime++;
+                cur.searchState = Vertex.DiscoverState.DISCOVERED;//visit vertex
                 processVertexEarly(cur);
             }
 
@@ -225,7 +308,7 @@ public class MyGraph<V, E> implements Graph<V, E>
             ArrayList<Edge<V, E>> neighborsOut = cur.getEdgesOut();
 
 
-            while (cur.dfsCurChild < neighborsOut.size() && neighborsOut.get(cur.dfsCurChild).getTarget().dfsState != Vertex.UNDISCOVERED)
+            while (cur.searchCurChild < neighborsOut.size() && neighborsOut.get(cur.searchCurChild).getTarget().searchState != Vertex.DiscoverState.UNDISCOVERED)
             {
                 // we still want to process all edges. We must do that if
                 // the cur child is not our parent
@@ -234,36 +317,38 @@ public class MyGraph<V, E> implements Graph<V, E>
                 // &&
                 // (the child has not yet been proccessed OR we are directed graph)
 
-                int curChildVID = neighborsOut.get(cur.dfsCurChild).getTargetID();
+                int curChildVID = neighborsOut.get(cur.searchCurChild).getTargetID();
+                Vertex<V, E> curChild = neighborsOut.get(cur.searchCurChild).getTarget();
 
 
-                boolean theCurChildDiscoveredUs = curChildVID == cur.dfsDiscovererVID;
-                boolean weDiscoveredTheCurChild = cur.getUID() == neighborsOut.get(cur.dfsCurChild).getTarget().dfsDiscovererVID;
-                //boolean childHasBeenProcessed = neighborsOut.get(cur.dfsCurChild).getTarget().getDfsState() == Vertex.PROCESSED;
+                boolean theCurChildDiscoveredUs = curChildVID == cur.searchDiscovererVID;
+                boolean weDiscoveredTheCurChild = cur.getUID() == curChild.searchDiscovererVID;
+                boolean curChildHasBeenProcessed = curChild.searchState == Vertex.DiscoverState.PROCESSED;
 
-                if (!theCurChildDiscoveredUs && !weDiscoveredTheCurChild)// && !childHasBeenProcessed)<----DIRECTED GRAPH
-                    processEdge(neighborsOut.get(cur.dfsCurChild));
 
-                cur.dfsCurChild++;
+                if (!theCurChildDiscoveredUs && !weDiscoveredTheCurChild && (!curChildHasBeenProcessed || isDirected))
+                    processEdge(neighborsOut.get(cur.searchCurChild));
+
+                cur.searchCurChild++;
             }
 
             // if we found a non-parent, non-processed neighbor then lets
             // explore it
-            if (cur.dfsCurChild < neighborsOut.size())
+            if (cur.searchCurChild < neighborsOut.size())
             {
-                processEdge(neighborsOut.get(cur.dfsCurChild));
-                if (neighborsOut.get(cur.dfsCurChild).getTarget().dfsState == Vertex.UNDISCOVERED)
+                processEdge(neighborsOut.get(cur.searchCurChild));
+                if (neighborsOut.get(cur.searchCurChild).getTarget().searchState == Vertex.DiscoverState.UNDISCOVERED)
                 {
                     lastDiscovererVID = cur.getUID();
-                    stack.push(neighborsOut.get(cur.dfsCurChild).getTarget());//EXPLORE
+                    stack.push(neighborsOut.get(cur.searchCurChild).getTarget());//EXPLORE
                 }
             }
             else
             // all neighbors have been visited and we are done
             {
                 // Complete Visit
-                cur.dfsProcessTime = searchTime++;
-                cur.dfsState = Vertex.PROCESSED;
+                cur.searchProcessTime = searchTime++;
+                cur.searchState = Vertex.DiscoverState.PROCESSED;
                 processVertexLate(cur);
                 stack.pop();
             }
@@ -272,13 +357,12 @@ public class MyGraph<V, E> implements Graph<V, E>
 
     }
 
-
     public void initializeSearch()
     {
         searchTime = 1;
 
         for (Identifiable i : vertexList)
-            ((Vertex<V, E>) i).initializeDFSSearch();
+            ((Vertex<V, E>) i).initializeSearch();
     }
 
 

@@ -5,7 +5,6 @@ package com.jmt;
  */
 public class Edge<V, E> implements Identifiable
 {
-
     private static int nextVertexID = 1;
     private int eUID;
     private E attr;
@@ -15,6 +14,9 @@ public class Edge<V, E> implements Identifiable
     private MyGraph<V, E> parentGraph;
     private int srcID;
     private int targetID;
+
+
+
 
     protected Vertex<V, E> getSource()
     {
@@ -26,13 +28,17 @@ public class Edge<V, E> implements Identifiable
         return target;
     }
 
-    private Vertex<V,E> source;
-    private Vertex<V,E> target;
+    private Vertex<V, E> source;
+    private Vertex<V, E> target;
 
-
-    public Edge(Vertex<V,E> src, Vertex<V,E> target, E attr, MyGraph<V, E> parentGraph)
+    protected Edge(Vertex<V, E> src, Vertex<V, E> target, E attr, MyGraph<V, E> parentGraph)
     {
-        this.parentGraph = parentGraph;
+
+
+
+        this.parentGraph = parentGraph; //ToDO is thihs neccesary
+
+
         eUID = nextVertexID++;
 
         this.source = src;
@@ -42,14 +48,15 @@ public class Edge<V, E> implements Identifiable
         this.targetID = target.getUID();
 
         this.attr = attr;
-    }
 
+    }
 
     @Override
     public int getUID()
     {
         return eUID;
     }
+
 
     public int getSourceID()
     {

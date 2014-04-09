@@ -140,11 +140,9 @@ public class GraphFactory
      * @param fileLoc
      * @return
      */
-    public static MyGraph<Coordinate, Street> loadGraph(String fileLoc) throws FileNotFoundException,  Exception
+    public static MyGraph<Coordinate, Street> loadGraph(String fileLoc, boolean isDirected) throws FileNotFoundException,  Exception
     {
-
-        MyGraph<Coordinate, Street> graph = new MyGraph<Coordinate, Street>();
-
+        MyGraph<Coordinate, Street> graph = new MyGraph<Coordinate, Street>(isDirected);
 
         //This is a mapping FROM the input file's vertex ids TO the graph generated ids
         ArrayList<Point> vIDMap = new ArrayList<Point>();
@@ -210,6 +208,8 @@ public class GraphFactory
                 streetName = items.get(3);
 
             graph.addEdge(getAssignedVID(vIDMap, vidSrc), getAssignedVID(vIDMap, vidTarget), new Street(streetName, weight));
+
+
         }
 
 

@@ -1,14 +1,9 @@
 package com.jmt;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.lang.reflect.Array;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.Set;
 
 /**
@@ -22,7 +17,7 @@ public class Tester
 
         System.out.println("Hello, Graph World!!");
 
-        MyGraph<Point, String> g = new MyGraph<Point, String>();
+        MyGraph<Point, String> g = new MyGraph<Point, String>(true);
 
 
         g.addVertex(new Point(0, 2));
@@ -69,12 +64,86 @@ public class Tester
     }
 
 
+    public static <V, E> int countPartitions(MyGraph<V, E> graph)
+    {
+
+
+        graph.initializeSearch();
+        Set<Integer> vIDs = graph.getVertices();
+        Iterator<Integer> itr = vIDs.iterator();
+
+        int count = 0;
+        while (itr.hasNext())
+        {
+            int curID = itr.next();
+            Vertex<V, E> curVertex = graph.getVertex(curID);
+            if (curVertex.getState() == Vertex.DiscoverState.UNDISCOVERED)
+            {
+                graph.doDFS(curID);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static String tabs(int t)
+    {
+        if (t < 0)
+            return "";
+
+        String tab = "";
+        for (int i = 0; i < t; i++)
+            tab += "\t";
+        return tab;
+    }
+
+
+    public static <V, E> void printSearch(MyGraph<V, E> graph, boolean DFS)
+    {
+        GraphSearchProcessor gsp = new GraphSearchProcessor<V, E>()
+        {
+            public int sTabs = 0;
+
+            @Override
+            public void processVertexEarly(MyGraph<V, E> graph, Vertex<V, E> vertex)
+            {
+                System.out.println(tabs(sTabs++) + "early: " + vertex.getUID());
+            }
+
+            @Override
+            public void processEdge(MyGraph<V, E> graph, Edge<V, E> edge)
+            {
+                System.out.println(tabs(sTabs) + " edge: " + edge.getSource().getUID() + " -> " + edge.getTarget().getUID());
+            }
+
+            @Override
+            public void processVertexLate(MyGraph<V, E> graph, Vertex<V, E> vertex)
+            {
+                System.out.println(tabs(--sTabs) + " late: " + vertex.getUID());
+
+            }
+        };
+        graph.addGraphSearchProcessor(gsp);
+
+        if (DFS)
+            graph.doExhaustiveDFS();
+        else
+            graph.doExhaustiveBFS();
+
+
+        graph.removeGraphSearchProcessor(gsp);
+    }
+
+
     public static void main(String args[])
     {
-        MyGraph<Coordinate, Street> simpleGraph;
+        MyGraph<Coordinate, Street> simpleDirectedGraph;
+        MyGraph<Coordinate, Street> amesGraph;
+
         try
         {
-            simpleGraph = GraphFactory.loadGraph("/home/jim/IdeaProjects/GraphProject/src/ames.txt");
+            simpleDirectedGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/simpleDirectedGraph.txt", true);
+            amesGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/ames.txt", false);
         } catch (Exception e)
         {
             System.out.println("Unable to open graph file");
@@ -83,7 +152,18 @@ public class Tester
         }
 
 
-        simpleGraph.doExhaustiveDFS();
+        printSearch(amesGraph, true);
+
+        System.out.println("Ames has " + countPartitions(amesGraph) + " partitions");
+        System.out.println("Simple Directed Map has " + countPartitions(simpleDirectedGraph) + " partitions");
+
+
+/*
+        ArrayList<Vertex<Coordinate, Street>> path = amesGraph.findShortestPath(21, 182);
+        for (Vertex<Coordinate, Street> v : path)
+            System.out.println(v.getUID());
+
+*/
 
 
     }
