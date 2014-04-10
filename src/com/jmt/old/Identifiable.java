@@ -1,4 +1,4 @@
-package com.jmt;
+package com.jmt.old;
 
 /**
  * The interface Identifiable allows for data to be coupled with an identifiable ID in the form of an integer.

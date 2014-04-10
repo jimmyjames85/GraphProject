@@ -1,4 +1,4 @@
-package com.jmt;
+package com.jmt.old;
 
 import java.util.*;
 
@@ -182,6 +182,9 @@ public class IdentifiableSet implements Set<Identifiable>
         return true;
     }
 
+
+
+    //TODO this is optional
     @Override
     public boolean remove(Object o)
     {

@@ -10,25 +10,23 @@ public class MyGraph<V, E> implements Graph<V, E>
 
     //These are for DFS and BFS
     private ArrayList<GraphSearchProcessor<V, E>> graphSearchProcessors;
+    private int searchTime;
 
-
-    private IdentifiableSet vertexList;
-    private IdentifiableSet edgeList;
-
-
+    //set to true if we have directed edges in our graph
     private boolean isDirected;
 
 
-    private int searchTime;
-
+    private HashMap<Integer, Vertex<V, E>> vertexList;
+    private HashMap<Integer, Edge<V, E>> edgeList;
 
     public MyGraph(boolean isDirected)
     {
 
-        vertexList = new IdentifiableSet();
-        edgeList = new IdentifiableSet();
+        vertexList = new HashMap<Integer, Vertex<V, E>>();
+        edgeList = new HashMap<Integer, Edge<V, E>>();
 
         graphSearchProcessors = new ArrayList<GraphSearchProcessor<V, E>>();
+        this.isDirected = isDirected;
     }
 
     public boolean isDirected()
@@ -36,87 +34,65 @@ public class MyGraph<V, E> implements Graph<V, E>
         return isDirected;
     }
 
-
-    //BIG O lg n
-    //TODO make private???
     public Vertex<V, E> getVertex(int vID) throws IllegalArgumentException
     {
-        return (Vertex<V, E>) vertexList.getIdentifiableByID(vID);
+        return vertexList.get(vID);
     }
 
-
-    //Big O lg n
     private Edge<V, E> getEdge(int eID) throws IllegalArgumentException
     {
-        return (Edge<V, E>) vertexList.getIdentifiableByID(eID);
+        return edgeList.get(eID);
     }
-
 
     @Override
     public int addVertex(V data)
     {
         Vertex<V, E> v = new Vertex<V, E>(data, this);
-        vertexList.add(v);
-        return v.getUID();
+        vertexList.put(v.vID, v);
+        return v.vID;
     }
 
-
-    //BIGO 2*lg(n) +BigO(IdentifiableSet.add)
     @Override
     public int addEdge(int srcID, int targetID, E attr) throws IllegalArgumentException
     {
-        //getVertex() will throw IllegalArgumentException if srcID or targetID's are not found
-        Vertex<V, E> src = getVertex(srcID);
-        Vertex<V, E> target = getVertex(targetID);
+
+        //TODO what happens when vertexList doesn't have srcID we need throw illeagalargumentException
+        Vertex<V, E> src = vertexList.get(srcID);
+        Vertex<V, E> target = vertexList.get(targetID);
 
 
         Edge<V, E> newEdge = new Edge(src, target, attr, this);
-        int eID = newEdge.getUID();
 
 
         //TODO will SELF LOOPs be a problem???
         //if(srcID==targetID)
         //System.out.println(srcID);
 
-        //TODO these return true/false but new edge should be unique
-        if (!src.addEdgeOut(newEdge))
-            throw new IllegalArgumentException("AlreadyExisits???");
-        //TODO is it possible these vertices already have these edges registered
-        if (!target.addEdgeIn(newEdge))
-            throw new IllegalArgumentException("AlreadyExisits???");
 
+        src.neighbors.put(targetID, target);
+        src.edges.put(newEdge.eID, newEdge);
 
+        if (!isDirected)
+        {
+            target.neighbors.put(srcID, src);
+            target.edges.put(newEdge.eID, newEdge);
+        }
 
+        edgeList.put(newEdge.eID, newEdge);
 
-        edgeList.add(newEdge);
-
-        return newEdge.getUID();
+        return newEdge.eID;
     }
-
-
-    //BIG O lg(n)
-    public int getDegreeIn(int vID)
-    {
-        return getVertex(vID).getEdgeIDsIn().size();
-    }
-
-    //BIG O lg(n)
-    public int getDegreeOut(int vID)
-    {
-        return getVertex(vID).getEdgeIDsOut().size();
-    }
-
 
     @Override
     public Set<Integer> getVertices()
     {
-        return vertexList.getIDList();
+        return vertexList.keySet();
     }
 
     @Override
     public Set<Integer> getEdges()
     {
-        return edgeList.getIDList();
+        return edgeList.keySet();
     }
 
     @Override
@@ -146,9 +122,8 @@ public class MyGraph<V, E> implements Graph<V, E>
     @Override
     public Set<Integer> getEdgesOf(int vID) throws IllegalArgumentException
     {
-        return getVertex(vID).getEdgeIDsAll();
+        return getVertex(vID).getEdges();
     }
-
 
     public void addGraphSearchProcessor(GraphSearchProcessor<V, E> proc)
     {
@@ -163,7 +138,6 @@ public class MyGraph<V, E> implements Graph<V, E>
 
     }
 
-
     private void processVertexEarly(Vertex<V, E> vertex)
     {
         for (GraphSearchProcessor gsp : graphSearchProcessors)
@@ -172,12 +146,10 @@ public class MyGraph<V, E> implements Graph<V, E>
 
     }
 
-    private void processEdge(Edge<V, E> edge)
+    private void processEdge(Vertex<V, E> from, Vertex<V, E> to)
     {
         for (GraphSearchProcessor gsp : graphSearchProcessors)
-            gsp.processEdge(this, edge);
-
-
+            gsp.processEdge(this, from, to);
     }
 
     private void processVertexLate(Vertex<V, E> v)
@@ -191,12 +163,13 @@ public class MyGraph<V, E> implements Graph<V, E>
     {
         initializeSearch();
 
-        Iterator<Identifiable> itr = vertexList.iterator();
+        Iterator<Vertex<V, E>> itr = vertexList.values().iterator();
+
         while (itr.hasNext())
         {
             Vertex<V, E> v = (Vertex<V, E>) itr.next();
             if (v.searchState == Vertex.DiscoverState.UNDISCOVERED)
-                doBFS((v.getUID()));
+                doBFS((v.vID));
         }
 
     }
@@ -222,21 +195,18 @@ public class MyGraph<V, E> implements Graph<V, E>
             processVertexEarly(cur);
 
 
-            ArrayList<Edge<V, E>> neighborsOut = cur.getEdgesOut();
-
-            //neighborsOut is sorted in order by uid
-
-            for (int i = 0; i < neighborsOut.size(); i++)
+            while (cur.searchVertexItr.hasNext())
             {
-                Vertex<V, E> curTarget = neighborsOut.get(i).getTarget();
+
+                Vertex<V, E> curTarget = cur.searchVertexItr.next();
                 if (curTarget.searchState != Vertex.DiscoverState.PROCESSED || isDirected) // || isDirected
-                    processEdge(neighborsOut.get(i));
+                    processEdge(cur, curTarget);
 
                 if (curTarget.searchState == Vertex.DiscoverState.UNDISCOVERED)
                 {
                     curTarget.searchState = Vertex.DiscoverState.DISCOVERED;
                     curTarget.searchDiscoverTime = searchTime++;
-                    curTarget.searchDiscovererVID = cur.getUID();
+                    curTarget.searchDiscovererVID = cur.vID;
                     queue.add(curTarget);
                 }
             }
@@ -273,12 +243,12 @@ public class MyGraph<V, E> implements Graph<V, E>
     {
         initializeSearch();
 
-        Iterator<Identifiable> itr = vertexList.iterator();
+        Iterator<Vertex<V, E>> itr = vertexList.values().iterator();
         while (itr.hasNext())
         {
             Vertex<V, E> v = (Vertex<V, E>) itr.next();
             if (v.searchState == Vertex.DiscoverState.UNDISCOVERED)
-                doDFS((v.getUID()));
+                doDFS((v.vID));
         }
 
     }
@@ -302,45 +272,56 @@ public class MyGraph<V, E> implements Graph<V, E>
                 processVertexEarly(cur);
             }
 
-            // Every node has a marker to check which children it has searched
-            // we continue our search from where ever we left off
-            // we are searching for the next undiscovered child
-            ArrayList<Edge<V, E>> neighborsOut = cur.getEdgesOut();
 
+            // Every vertex has an iterator to keep track of which verticies it has searched already
+            //We pick up where we left of and we seek to find the next undisovered neighbor
 
-            while (cur.searchCurChild < neighborsOut.size() && neighborsOut.get(cur.searchCurChild).getTarget().searchState != Vertex.DiscoverState.UNDISCOVERED)
+            boolean weHaveFoundTheNextUNDISCOVEREDNeighbor = false;
+            Vertex<V, E> curNeighbor = null;
+            while (cur.searchVertexItr.hasNext() && !weHaveFoundTheNextUNDISCOVEREDNeighbor)
             {
-                // we still want to process all edges. We must do that if
-                // the cur child is not our parent
-                // &&
-                // we are not the child's parent
-                // &&
-                // (the child has not yet been proccessed OR we are directed graph)
 
-                int curChildVID = neighborsOut.get(cur.searchCurChild).getTargetID();
-                Vertex<V, E> curChild = neighborsOut.get(cur.searchCurChild).getTarget();
+                curNeighbor = cur.searchVertexItr.next();
+                weHaveFoundTheNextUNDISCOVEREDNeighbor = curNeighbor.searchState == Vertex.DiscoverState.UNDISCOVERED;
+
+                if (weHaveFoundTheNextUNDISCOVEREDNeighbor)
+                {
+
+                }
+                else
+                {
+                    // we still want to process the edges to show that we have traversed them
+                    //
+                    // We must do that IF
+                    //
+                    // the current neighbor has NOT already discovered the cur vertex
+                    //        &&
+                    // the cur vertex has not already discovered the neighbor (//TODO is this even possible with an itr
+                    //        &&
+                    // (the current neighbor has NOT yet been processed  OR  we are a directed graph)
 
 
-                boolean theCurChildDiscoveredUs = curChildVID == cur.searchDiscovererVID;
-                boolean weDiscoveredTheCurChild = cur.getUID() == curChild.searchDiscovererVID;
-                boolean curChildHasBeenProcessed = curChild.searchState == Vertex.DiscoverState.PROCESSED;
+                    boolean theCurNeighborHasDiscoveredUs = cur.searchDiscovererVID == curNeighbor.vID;
+                    boolean weDiscoveredTheCurChild = curNeighbor.searchDiscovererVID == cur.vID;
+                    boolean curChildHasBeenProcessed = curNeighbor.searchState == Vertex.DiscoverState.PROCESSED;
 
 
-                if (!theCurChildDiscoveredUs && !weDiscoveredTheCurChild && (!curChildHasBeenProcessed || isDirected))
-                    processEdge(neighborsOut.get(cur.searchCurChild));
-
-                cur.searchCurChild++;
+                    if (!theCurNeighborHasDiscoveredUs && !weDiscoveredTheCurChild && (curChildHasBeenProcessed || isDirected))
+                        processEdge(cur, curNeighbor);
+                }
             }
 
-            // if we found a non-parent, non-processed neighbor then lets
-            // explore it
-            if (cur.searchCurChild < neighborsOut.size())
+
+            // if we found the next undiscovered neighbor then lets explore it
+            if (curNeighbor != null)
             {
-                processEdge(neighborsOut.get(cur.searchCurChild));
-                if (neighborsOut.get(cur.searchCurChild).getTarget().searchState == Vertex.DiscoverState.UNDISCOVERED)
+                processEdge(cur, curNeighbor);
+
+                //TODO try it without this if statement
+                if (curNeighbor.searchState == Vertex.DiscoverState.UNDISCOVERED)
                 {
-                    lastDiscovererVID = cur.getUID();
-                    stack.push(neighborsOut.get(cur.searchCurChild).getTarget());//EXPLORE
+                    lastDiscovererVID = cur.vID;
+                    stack.push(curNeighbor);
                 }
             }
             else
@@ -360,9 +341,8 @@ public class MyGraph<V, E> implements Graph<V, E>
     public void initializeSearch()
     {
         searchTime = 1;
-
-        for (Identifiable i : vertexList)
-            ((Vertex<V, E>) i).initializeSearch();
+        for (Vertex<V, E> v : vertexList.values())
+            v.initializeSearch();
     }
 
 

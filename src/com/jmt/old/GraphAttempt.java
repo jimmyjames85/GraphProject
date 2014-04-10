@@ -199,7 +199,11 @@ public class GraphAttempt<E extends Comparable<? super E>>
                 processEarly(cur);
             }
 
+
             ArrayList<Node> neighbors = cur.neighbors;
+
+
+
 
             // Every node has a marker to check which children it has searched
             // we continue our search from where ever we left off

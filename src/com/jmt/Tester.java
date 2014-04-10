@@ -1,10 +1,7 @@
 package com.jmt;
 
 import java.awt.*;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by jtappe on 4/3/2014.
@@ -66,8 +63,6 @@ public class Tester
 
     public static <V, E> int countPartitions(MyGraph<V, E> graph)
     {
-
-
         graph.initializeSearch();
         Set<Integer> vIDs = graph.getVertices();
         Iterator<Integer> itr = vIDs.iterator();
@@ -79,9 +74,11 @@ public class Tester
             Vertex<V, E> curVertex = graph.getVertex(curID);
             if (curVertex.getState() == Vertex.DiscoverState.UNDISCOVERED)
             {
+                System.out.println(curID);
                 graph.doDFS(curID);
                 count++;
             }
+
         }
         return count;
     }
@@ -107,19 +104,19 @@ public class Tester
             @Override
             public void processVertexEarly(MyGraph<V, E> graph, Vertex<V, E> vertex)
             {
-                System.out.println(tabs(sTabs++) + "early: " + vertex.getUID());
+                System.out.println(tabs(sTabs++) + "early: " + vertex.getVID() + "(" + vertex.getData().toString() + ")");
             }
 
             @Override
-            public void processEdge(MyGraph<V, E> graph, Edge<V, E> edge)
+            public void processEdge(MyGraph<V, E> graph, Vertex<V, E> from, Vertex<V, E> to)
             {
-                System.out.println(tabs(sTabs) + " edge: " + edge.getSource().getUID() + " -> " + edge.getTarget().getUID());
+                System.out.println(tabs(sTabs) + " edge: " + from.getVID() + " -> " + to.getVID());
             }
 
             @Override
             public void processVertexLate(MyGraph<V, E> graph, Vertex<V, E> vertex)
             {
-                System.out.println(tabs(--sTabs) + " late: " + vertex.getUID());
+                System.out.println(tabs(--sTabs) + " late: " + vertex.getVID() + "(" + vertex.getData().toString() + ")");
 
             }
         };
@@ -142,29 +139,20 @@ public class Tester
 
         try
         {
-            simpleDirectedGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/simpleDirectedGraph.txt", true);
+            simpleDirectedGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/simpleDirectedGraph.txt", false);
             amesGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/ames.txt", false);
         } catch (Exception e)
         {
+            e.printStackTrace();
             System.out.println("Unable to open graph file");
             System.out.println(e.getMessage());
             return;
         }
+        printSearch(simpleDirectedGraph, true);
 
+        System.out.println("Ames has " + countPartitions(amesGraph) + " partition(s)");
+        System.out.println("Simple Directed Map has " + countPartitions(simpleDirectedGraph) + " partition(s)");
 
-        printSearch(amesGraph, true);
-
-        System.out.println("Ames has " + countPartitions(amesGraph) + " partitions");
-        System.out.println("Simple Directed Map has " + countPartitions(simpleDirectedGraph) + " partitions");
-
-
-/*
-        ArrayList<Vertex<Coordinate, Street>> path = amesGraph.findShortestPath(21, 182);
-        for (Vertex<Coordinate, Street> v : path)
-            System.out.println(v.getUID());
-
-*/
-
-
+        System.out.println("----------------------");
     }
 }

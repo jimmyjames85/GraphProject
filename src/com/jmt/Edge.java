@@ -1,62 +1,47 @@
 package com.jmt;
 
+
+
 /**
  * Created by jtappe on 4/3/2014.
  */
-public class Edge<V, E> implements Identifiable
+public class Edge<V, E>
 {
     private static int nextVertexID = 1;
-    private int eUID;
+
+
+    protected final int eID;
     private E attr;
 
-
-
     private MyGraph<V, E> parentGraph;
+
     private int srcID;
     private int targetID;
 
+    protected  Vertex<V, E> source;
+    protected Vertex<V, E> target;
 
 
-
-    protected Vertex<V, E> getSource()
-    {
-        return source;
-    }
-
-    protected Vertex<V, E> getTarget()
-    {
-        return target;
-    }
-
-    private Vertex<V, E> source;
-    private Vertex<V, E> target;
 
     protected Edge(Vertex<V, E> src, Vertex<V, E> target, E attr, MyGraph<V, E> parentGraph)
     {
-
-
-
-        this.parentGraph = parentGraph; //ToDO is thihs neccesary
-
-
-        eUID = nextVertexID++;
+        this.parentGraph = parentGraph;
+        eID = nextVertexID++;
 
         this.source = src;
         this.target = target;
 
-        this.srcID = src.getUID();
-        this.targetID = target.getUID();
+        this.srcID = src.vID;
+        this.targetID = target.vID;
 
         this.attr = attr;
-
     }
 
-    @Override
-    public int getUID()
+
+    public int getEID()
     {
-        return eUID;
+        return eID;
     }
-
 
     public int getSourceID()
     {
