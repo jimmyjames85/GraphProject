@@ -54,6 +54,7 @@ public class GraphAttempt<E extends Comparable<? super E>>
 
     public void topologicalSort()
     {
+
         if (isCyclic())
             return;
 

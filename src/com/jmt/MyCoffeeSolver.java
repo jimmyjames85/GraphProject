@@ -1,4 +1,4 @@
-package com.jmt.old;
+package com.jmt;
 
 import com.jmt.CoffeeSolver;
 import com.jmt.Graph;
@@ -24,7 +24,6 @@ public class MyCoffeeSolver<V, E> implements CoffeeSolver<V, E>
     {
         return null;
     }
-
     /**
      * Computes the shortest path that visits all the locations in
      * the graph in the order specified.

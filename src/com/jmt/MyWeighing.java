@@ -6,7 +6,6 @@ package com.jmt;
 public class MyWeighing extends MyGraph<Coordinate, Street> implements Weighing<Street>
 {
     //TODO understand this!!!
-
     public MyWeighing(boolean isDirected)
     {
         super(isDirected);

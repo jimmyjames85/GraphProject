@@ -5,9 +5,10 @@ package com.jmt;
  */
 public interface GraphSearchProcessor<V,E>
 {
-    void processVertexEarly(MyGraph<V, E> graph, Vertex<V, E> vertex);
+    public void processVertexEarly(Graph<V, E> graph, int vID);
 
-    void processEdge(MyGraph<V, E> graph, Vertex<V,E> from, Vertex<V, E> to);
+    public void processEdge(Graph<V, E> graph, int eID, int vIDfrom, int vIDto);
 
-    void processVertexLate(MyGraph<V, E> graph, Vertex<V, E> vertex);
+    public void processVertexLate(Graph<V, E> graph, int vID);
+
 }

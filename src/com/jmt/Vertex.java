@@ -25,12 +25,8 @@ public class Vertex<V, E>
 
     //graph search protected Variables
 
-    //used to keep track of the the current child this vertex is exploring
-    protected Iterator<Vertex<V,E>> searchVertexItr;
-//    protected int searchCurEdge;
 
-
-
+    protected Iterator<Vertex<V,E>> searchVertexItr;    //used to keep track of the the current child this vertex is exploring
     protected int searchDiscovererVID;//id of the vertex that discovered this vertex
     protected int searchDiscoverTime;
     protected int searchProcessTime;
