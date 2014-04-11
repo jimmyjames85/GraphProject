@@ -71,7 +71,7 @@ public class GraphHandler<V, E>
     {
         vertInfo = new HashMap<Integer, VertexInfo>();
         searchTime = 1;
-        keepSearching = true;
+        keepSearching = true;//TODO implement this into the code
 
         Iterator<Integer> itr = mainGraph.getVertices().iterator();
         while (itr.hasNext())
@@ -79,6 +79,7 @@ public class GraphHandler<V, E>
             int vID = itr.next();
             VertexInfo vi = new VertexInfo(vID);
             vertInfo.put(vID, vi);
+
         }
     }
 
@@ -196,21 +197,17 @@ public class GraphHandler<V, E>
 
             }
 
-            //A HACKish way to return if this graph is cyclic
-            @Override
-            public boolean equals(Object o)
+            public Object getResults()
             {
-                return cyclic;
+                return new Boolean(cyclic);
             }
-
 
         };
 
         addGraphSearchProcessor(gsp);
         doExhaustiveDFS();
         graphSearchProcessors = tmp;
-
-        return gsp.equals(gsp);
+        return (Boolean) gsp.getResults();
     }
 
 
@@ -226,6 +223,11 @@ public class GraphHandler<V, E>
         }
     }
 
+    public DiscoverState getVertexState(int vID)
+    {
+        return getVertexInfo(vID).searchState;
+    }
+
 
     private boolean keepSearching;
 
@@ -237,12 +239,12 @@ public class GraphHandler<V, E>
 
     public void doDFS(int startVID)
     {
+        if(getVertexState(startVID)!=DiscoverState.UNDISCOVERED)
+            throw new IllegalStateException("Vertex " + startVID + " has already been discovered.");
+
         int lastDiscovererVID = -1;//null
-
         int curVid = startVID;
-
         Stack<Integer> stack = new Stack<Integer>();
-
         stack.push(curVid);
         while (!stack.isEmpty())
         {
@@ -326,7 +328,7 @@ public class GraphHandler<V, E>
     }
 
 
-    private enum DiscoverState
+    public enum DiscoverState
     {
         UNDISCOVERED, DISCOVERED, PROCESSED
     }

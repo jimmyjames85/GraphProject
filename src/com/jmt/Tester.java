@@ -24,64 +24,24 @@ public class Tester
 
     public static void main(String args[])
     {
+        Graph<Character, String> g = GraphFactory.produceTopSortTest();
 
-        Graph<Character, String> g = GraphFactory.produceIngredientOrder();
 
-        Iterator<Integer> itr = g.getVertices().iterator();
-        while (itr.hasNext())
-            System.out.println(itr.next() + " ");
 
+        MyCoffeeSolver<Character, String> solver = new MyCoffeeSolver<Character, String>();
+
+        Iterator<Integer> itr = solver.sortVertices(g).iterator();
+        while(itr.hasNext())
+            System.out.print(g.getData(itr.next())+ " ");
         System.out.println();
 
+        solver.generateValidSortS(g);
 
-        GraphHandler<Character, String> handler = new GraphHandler<Character, String>(g, true);
-
-
-        handler.addGraphSearchProcessor(new GraphSearchProcessor<Character, String>()
-        {
-
-            int nTab = 0;
-
-            String tabs()
-            {
-                String ret = "";
-                for (int i = 0; i < nTab; i++)
-                    ret += "\t";
-                return ret;
-            }
-
-            @Override
-            public void processVertexEarly(Graph<Character, String> graph, int vID)
-            {
-                System.out.println(tabs() + "Early " + vID + graph.getData(vID));
-                nTab++;
-            }
-
-            @Override
-            public void processEdge(Graph<Character, String> graph, int eID, int vIDfrom, int vIDto)
-            {
-                System.out.println(tabs() + "EID(" + eID + ") [" + graph.getAttribute(eID) + "] " + graph.getData(vIDfrom) + " -> " + graph.getData(vIDto));
-            }
-
-            @Override
-            public void processVertexLate(Graph<Character, String> graph, int vID)
-            {
-                nTab--;
-                System.out.println(tabs() + "Late " + vID + graph.getData(vID));
-            }
-        });
-
-        try
-        {
-            Graph<Coordinate, Street> gAmes = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/ames.txt", false);
-            GraphHandler<Coordinate, Street> amesHandler = new GraphHandler<Coordinate, Street>(gAmes, false);
-
-            System.out.println("ames is cyclic=" + amesHandler.isGraphCyclic());
-        } catch (Exception e)
-        {
-        }
-
-        System.out.println(handler.isGraphCyclic());
+/*        Iterator<Integer> itr = solver.sortVertices(g).iterator();
+        if (itr != null)
+            while (itr.hasNext())
+                System.out.print(g.getData(itr.next()) + " ");
+                */
 
 
     }

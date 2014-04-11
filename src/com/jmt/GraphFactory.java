@@ -125,41 +125,134 @@ public class GraphFactory
     }
 
 
+    public static Graph<Character, String> produceGraph_HW_5_2()
+    {
+        MyGraph<Character, String> graph = new MyGraph<Character, String>(true);
+
+        int[] vid = new int[10];
+        for (int i = 0; i < vid.length; i++)
+            vid[i] = graph.addVertex((char) ('A' + i));
+
+
+        // A B C D E F G H I J
+        // 0 1 2 3 4 5 6 7 8 9
+        graph.addEdge(vid[0], vid[1], "A to B");
+        graph.addEdge(vid[0], vid[3], "A to D");
+
+        graph.addEdge(vid[1], vid[2], "B to C");
+        graph.addEdge(vid[1], vid[3], "B to D");
+        graph.addEdge(vid[1], vid[4], "B to E");
+
+        graph.addEdge(vid[2], vid[5], "C to F");
+
+        graph.addEdge(vid[3], vid[6], "D to G");
+        graph.addEdge(vid[3], vid[4], "D to E");
+
+        graph.addEdge(vid[4], vid[2], "E to C");
+        graph.addEdge(vid[4], vid[5], "E to F");
+        graph.addEdge(vid[4], vid[6], "E to G");
+
+        graph.addEdge(vid[6], vid[5], "G to F");
+        graph.addEdge(vid[6], vid[8], "G to I");
+
+        graph.addEdge(vid[7], vid[5], "H to F");
+        graph.addEdge(vid[7], vid[9], "H to J");
+
+        graph.addEdge(vid[8], vid[9], "I to J");
+
+        return graph;
+    }
+
     public static Graph<Character, String> produceIngredientOrder()
     {
         MyGraph<Character, String> graph = new MyGraph<Character, String>(true);
 
-        int[] vid = new int[7];
-        for(int i=0;i<vid.length;i++)
-            vid[i] = graph.addVertex((char)('A'+i));
+
+        int[] vid = new int[8];
+
+
+        for (int i = 0; i < vid.length; i++)
+            vid[i] = graph.addVertex((char) ('A' + i));
 
 
         //Ingredient A must be picked up before ingredients C and F
-        graph.addEdge(vid[0],vid[2],"A before C");
-        graph.addEdge(vid[0],vid[5],"A before F");
+        graph.addEdge(vid[0], vid[2], "A before C");//
+        graph.addEdge(vid[0], vid[5], "A before F");//
 
         //Ingredient B must be picked up before ingredients C and D
-        graph.addEdge(vid[1],vid[2],"B before C");
-        graph.addEdge(vid[1],vid[3],"B before D");
+        graph.addEdge(vid[1], vid[2], "B before C");//
+        graph.addEdge(vid[1], vid[3], "B before D");//
 
         //Ingredient C must be picked up before ingredients D and E
-        graph.addEdge(vid[2],vid[3],"C before D");
-        graph.addEdge(vid[2],vid[4],"C before E");
+        graph.addEdge(vid[2], vid[3], "C before D");
+        graph.addEdge(vid[2], vid[4], "C before E");
 
         //Ingredient F must be picked up before ingredients C and E
-        graph.addEdge(vid[5],vid[2],"F before C");
-        graph.addEdge(vid[5],vid[4],"F before E");
+        graph.addEdge(vid[5], vid[2], "F before C");
+        graph.addEdge(vid[5], vid[4], "F before E");
 
         //Ingredient G must be the last ingredient picked up
-        graph.addEdge(vid[6],vid[0],"G before A");
-        graph.addEdge(vid[6],vid[1],"G before B");
-        graph.addEdge(vid[6],vid[2],"G before C");
-        graph.addEdge(vid[6],vid[3],"G before D");
-        graph.addEdge(vid[6],vid[4],"G before E");
-        graph.addEdge(vid[6],vid[5],"G before F");
+        graph.addEdge(vid[6], vid[0], "G before A");//
+        graph.addEdge(vid[6], vid[1], "G before B");//
+        graph.addEdge(vid[6], vid[2], "G before C");//
+        graph.addEdge(vid[6], vid[3], "G before D");//
+        graph.addEdge(vid[6], vid[4], "G before E");//
+        graph.addEdge(vid[6], vid[5], "G before F");//
+
+
+
+
 
         return graph;
     }
+
+
+
+    public static Graph<Character, String> produceTopSortTest()
+    {
+        MyGraph<Character, String> graph = new MyGraph<Character, String>(true);
+
+
+        int[] vid = new int[8];
+
+
+        for (int i = 0; i < vid.length; i++)
+            vid[i] = graph.addVertex((char) ('A' + i));
+
+
+
+
+        graph.addEdge(vid[0], vid[5], "A before F");//
+
+
+        graph.addEdge(vid[1], vid[3], "B before D");//
+
+
+        graph.addEdge(vid[2], vid[3], "C before D");
+        graph.addEdge(vid[2], vid[4], "C before E");
+
+
+
+        graph.addEdge(vid[5], vid[4], "F before E");
+
+
+
+        graph.addEdge(vid[6], vid[0], "G before A");//
+        graph.addEdge(vid[6], vid[1], "G before B");//
+        graph.addEdge(vid[6], vid[2], "G before B");//
+        graph.addEdge(vid[6], vid[3], "G before D");//
+        graph.addEdge(vid[6], vid[4], "G before E");//
+        graph.addEdge(vid[6], vid[5], "G before F");//
+        graph.addEdge(vid[6], vid[7], "G before H");//
+
+
+
+
+        return graph;
+    }
+
+
+
 
 
     /**

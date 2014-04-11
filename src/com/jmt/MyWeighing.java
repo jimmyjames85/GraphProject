@@ -3,14 +3,22 @@ package com.jmt;
 /**
  * Created by jim on 4/8/14.
  */
-public class MyWeighing extends MyGraph<Coordinate, Street> implements Weighing<Street>
+public class MyWeighing implements Weighing<Street>
 {
-    //TODO understand this!!!
-    public MyWeighing(boolean isDirected)
+    MyGraph<Coordinate, Street> graph;
+    boolean isDirected;
+
+    public MyWeighing(MyGraph<Coordinate, Street> graph, boolean isDirected)
     {
-        super(isDirected);
+        this.isDirected = isDirected;
+        this.graph = graph;
     }
 
+    /**
+     * Computes the weight of the edge
+     *
+     * @param edge
+     */
     @Override
     public double weight(Street edge)
     {

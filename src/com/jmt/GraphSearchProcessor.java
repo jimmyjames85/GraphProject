@@ -11,4 +11,7 @@ public interface GraphSearchProcessor<V,E>
 
     public void processVertexLate(Graph<V, E> graph, int vID);
 
+    public Object getResults();
+
+
 }
