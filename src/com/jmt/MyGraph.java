@@ -8,42 +8,31 @@ import java.util.*;
 public class MyGraph<V, E> implements Graph<V, E>
 {
 
-    //These are for DFS and BFS
-    private ArrayList<GraphSearchProcessor<V, E>> graphSearchProcessors;
-    private int searchTime;
-
-    //set to true if we have directed edges in our graph
-    private boolean isDirected;
-
-
     private HashMap<Integer, Vertex<V, E>> vertexList;
     private HashMap<Integer, Edge<V, E>> edgeList;
 
 
-    public MyGraph(boolean isDirected)
+    public MyGraph()
     {
-
         vertexList = new HashMap<Integer, Vertex<V, E>>();
         edgeList = new HashMap<Integer, Edge<V, E>>();
-
-        graphSearchProcessors = new ArrayList<GraphSearchProcessor<V, E>>();
-        this.isDirected = isDirected;
-    }
-
-
-    public boolean isDirected()
-    {
-        return isDirected;
     }
 
     public Vertex<V, E> getVertex(int vID) throws IllegalArgumentException
     {
-        return vertexList.get(vID);
+        Vertex<V,E> v = vertexList.get(vID);
+        if(v==null)
+            throw new IllegalArgumentException("No such vertex " + vID);
+        return v;
     }
 
     private Edge<V, E> getEdge(int eID) throws IllegalArgumentException
     {
-        return edgeList.get(eID);
+        Edge<V,E> e = edgeList.get(eID);
+        if(e==null)
+            throw new IllegalArgumentException("No such edge " + eID);
+
+        return e;
     }
 
     @Override
@@ -57,28 +46,12 @@ public class MyGraph<V, E> implements Graph<V, E>
     @Override
     public int addEdge(int srcID, int targetID, E attr) throws IllegalArgumentException
     {
-
-        //TODO what happens when vertexList doesn't have srcID we need throw illeagalargumentException
         Vertex<V, E> src = vertexList.get(srcID);
         Vertex<V, E> target = vertexList.get(targetID);
-
-
         Edge<V, E> newEdge = new Edge(src, target, attr, this);
-
-
-        //TODO will SELF LOOPs be a problem???
-        //if(srcID==targetID)
-        //System.out.println(srcID);
-
 
         src.neighbors.put(targetID, target);
         src.edges.put(newEdge.eID, newEdge);
-
-        if (!isDirected)
-        {
-            target.neighbors.put(srcID, src);
-            target.edges.put(newEdge.eID, newEdge);
-        }
 
         edgeList.put(newEdge.eID, newEdge);
 

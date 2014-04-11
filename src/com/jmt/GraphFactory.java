@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IllegalFormatException;
 import java.util.Scanner;
 
@@ -125,9 +126,9 @@ public class GraphFactory
     }
 
 
-    public static Graph<Character, String> produceGraph_HW_5_2()
+    public static MyGraph<Character, String> produceGraph_HW_5_2()
     {
-        MyGraph<Character, String> graph = new MyGraph<Character, String>(true);
+        MyGraph<Character, String> graph = new MyGraph<Character, String>();
 
         int[] vid = new int[10];
         for (int i = 0; i < vid.length; i++)
@@ -163,16 +164,17 @@ public class GraphFactory
         return graph;
     }
 
-    public static Graph<Character, String> produceIngredientOrder()
+    public static MyGraph<Integer, String> produceIngredientOrder()
     {
-        MyGraph<Character, String> graph = new MyGraph<Character, String>(true);
+        MyGraph<Integer, String> graph = new MyGraph<Integer, String>();
 
+        int[] vid = new int[7];
 
-        int[] vid = new int[8];
-
+        //                     A    B     C     D     E     F     G
+        int[] ingredients = {1055, 371, 2874, 2351, 2956, 1171, 1208};
 
         for (int i = 0; i < vid.length; i++)
-            vid[i] = graph.addVertex((char) ('A' + i));
+            vid[i] = graph.addVertex(ingredients[i]);
 
 
         //Ingredient A must be picked up before ingredients C and F
@@ -192,25 +194,20 @@ public class GraphFactory
         graph.addEdge(vid[5], vid[4], "F before E");
 
         //Ingredient G must be the last ingredient picked up
-        graph.addEdge(vid[6], vid[0], "G before A");//
-        graph.addEdge(vid[6], vid[1], "G before B");//
-        graph.addEdge(vid[6], vid[2], "G before C");//
-        graph.addEdge(vid[6], vid[3], "G before D");//
-        graph.addEdge(vid[6], vid[4], "G before E");//
-        graph.addEdge(vid[6], vid[5], "G before F");//
-
-
-
-
+        graph.addEdge(vid[0], vid[6], "A before G");//
+        graph.addEdge(vid[1], vid[6], "B before G");//
+        graph.addEdge(vid[2], vid[6], "C before G");//
+        graph.addEdge(vid[3], vid[6], "D before G");//
+        graph.addEdge(vid[4], vid[6], "E before G");//
+        graph.addEdge(vid[5], vid[6], "F before G");//
 
         return graph;
     }
 
 
-
-    public static Graph<Character, String> produceTopSortTest()
+    public static MyGraph<Character, String> produceTopSortTest()
     {
-        MyGraph<Character, String> graph = new MyGraph<Character, String>(true);
+        MyGraph<Character, String> graph = new MyGraph<Character, String>();
 
 
         int[] vid = new int[8];
@@ -218,8 +215,6 @@ public class GraphFactory
 
         for (int i = 0; i < vid.length; i++)
             vid[i] = graph.addVertex((char) ('A' + i));
-
-
 
 
         graph.addEdge(vid[0], vid[5], "A before F");//
@@ -232,9 +227,7 @@ public class GraphFactory
         graph.addEdge(vid[2], vid[4], "C before E");
 
 
-
         graph.addEdge(vid[5], vid[4], "F before E");
-
 
 
         graph.addEdge(vid[6], vid[0], "G before A");//
@@ -246,13 +239,8 @@ public class GraphFactory
         graph.addEdge(vid[6], vid[7], "G before H");//
 
 
-
-
         return graph;
     }
-
-
-
 
 
     /**
@@ -265,16 +253,16 @@ public class GraphFactory
      * <VID SOURCE>,<VID TARGET>,<WEIGHT>[,<STREET NAME>]
      *
      * @param fileLoc
+     * @param fileToGraphVIDMap uses the file's VID's as a key and stores the created vID's as the object
      * @return
      */
-    public static MyGraph<Coordinate, Street> loadGraph(String fileLoc, boolean isDirected) throws FileNotFoundException, Exception
+    public static MyGraph<Coordinate, Street> loadGraph(String fileLoc, boolean isDirected, HashMap<Integer,Integer> fileToGraphVIDMap) throws FileNotFoundException, Exception
     {
-        MyGraph<Coordinate, Street> graph = new MyGraph<Coordinate, Street>(isDirected);
-
-        //This is a mapping FROM the input file's vertex ids TO the graph generated ids
-        ArrayList<Point> vIDMap = new ArrayList<Point>();
 
 
+        fileToGraphVIDMap.clear();
+
+        MyGraph<Coordinate, Street> graph = new MyGraph<Coordinate, Street>();
         Scanner scanner = new Scanner(new File(fileLoc));
 
 
@@ -294,26 +282,16 @@ public class GraphFactory
             double latitude = Double.parseDouble(items.get(1));
             double longitude = Double.parseDouble(items.get(2));
 
+
+
+            if(fileToGraphVIDMap.get(fileVid)!=null)
+                throw new Exception("Input file contains duplicate vertex ID (" + fileVid + ").");
+
             //ADD VERTEX and store mapping
             int graphVid = graph.addVertex(new Coordinate(latitude, longitude));
-            vIDMap.add(new Point(fileVid, graphVid));
+            fileToGraphVIDMap.put(fileVid, graphVid);
         }
 
-
-        //SORT vIDMap by fileVID
-        sortCoordinateMapping(vIDMap, true);
-
-
-        //Test for unique fileVIDs
-        int lastID = vIDMap.get(0).x;
-        for (int i = 1; i < vIDMap.size(); i++)
-        {
-            int thisID = vIDMap.get(i).x;
-            if (lastID == thisID)
-                throw new Exception("Input file contains duplicate vertex ID (" + thisID + ").");
-
-            lastID = thisID;
-        }
 
         //Extract Edges
         int totEdges = 0;
@@ -334,7 +312,10 @@ public class GraphFactory
             if (items.size() > 3)
                 streetName = items.get(3);
 
-            graph.addEdge(getAssignedVID(vIDMap, vidSrc), getAssignedVID(vIDMap, vidTarget), new Street(streetName, weight));
+
+            graph.addEdge(fileToGraphVIDMap.get(vidSrc), fileToGraphVIDMap.get(vidTarget), new Street(streetName, weight));
+            if (!isDirected)
+                graph.addEdge(fileToGraphVIDMap.get(vidTarget) , fileToGraphVIDMap.get(vidSrc),  new Street(streetName, weight));
         }
 
 

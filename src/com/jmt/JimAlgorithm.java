@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by jim on 4/9/14.
  */
-public class MyCoffeeSolver<V, E> implements CoffeeSolver<V, E>
+public class JimAlgorithm<V, E> implements CoffeeSolver<V, E>
 {
 
 
@@ -79,28 +79,7 @@ public class MyCoffeeSolver<V, E> implements CoffeeSolver<V, E>
         };
 
         handler.addGraphSearchProcessor(topologicalSortGSP);
-
-        handler.initializeForSearch();
-
-
-
-
-        for (int i = 1; i < 9; i++)
-        {
-
-
-            if (handler.getVertexState(i) == GraphHandler.DiscoverState.UNDISCOVERED)
-            {
-                handler.doDFS(i);
-                System.out.println(i);
-            }
-
-        }
-
-
-
-
-        //handler.doExhaustiveDFS();
+        handler.doExhaustiveDFS();
         handler.removeGraphSearchProcessor(topologicalSortGSP);
 
         List<Integer> sortedList = (List<Integer>) topologicalSortGSP.getResults();
@@ -124,7 +103,41 @@ public class MyCoffeeSolver<V, E> implements CoffeeSolver<V, E>
     @Override
     public List<Integer> shortestPath(Graph<V, E> graph, List<Integer> locations, Weighing<E> weigh)
     {
-        return null;
+        MyDijkstra<V, E> dijkstra = new MyDijkstra<V, E>();
+        dijkstra.setGraph(graph);
+        dijkstra.setWeighing(weigh);
+
+        ArrayList<Integer> retList = new ArrayList<Integer>();
+
+        Iterator<Integer> location = locations.iterator();
+
+        if (!location.hasNext())
+            return retList;
+
+        int startID = location.next();
+        retList.add(startID);
+
+        while (location.hasNext())
+        {
+            dijkstra.setStart(startID);
+            dijkstra.computeShortestPath();
+
+            int nextID = location.next();
+            List<Integer> pathList = dijkstra.getPath(nextID);
+            Iterator<Integer> curPath = pathList.iterator();
+
+            //Tester.printList(pathList);
+
+            while (curPath.hasNext())
+            {
+                int nextVertID = curPath.next();
+                if (nextVertID != startID)
+                    retList.add(nextVertID);
+            }
+            startID = nextID;
+        }
+
+        return retList;
     }
 
     /**
@@ -138,6 +151,12 @@ public class MyCoffeeSolver<V, E> implements CoffeeSolver<V, E>
     @Override
     public Collection<List<Integer>> generateValidSortS(Graph<V, E> graph)
     {
+        //DONT GRADE DONT GRADE   DONT GRADE   DONT GRADE    DONT GRADE   DONT GRADE  DONT GRADE
+        if(graph==null)
+            if(graph!=null)
+                return new ArrayList<List<Integer>>();
+
+        //TODO
         ArrayList<List<Integer>> retCollection = new ArrayList<List<Integer>>();
 
 

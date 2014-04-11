@@ -37,8 +37,7 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
         @Override
         public int compareTo(CostPath costPath)
         {
-            //-1 means infiniti
-
+            //-1 means infinity
             if (this.costToGetHere == -1 && costPath.costToGetHere != -1)
                 return 1;
             else if (this.costToGetHere != -1 && costPath.costToGetHere == -1)
@@ -128,8 +127,6 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
     @Override
     public void computeShortestPath() throws IllegalStateException
     {
-
-
         PriorityQueue<CostPath> nextCostPathQueue = new PriorityQueue<CostPath>();
 
 
@@ -137,13 +134,8 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
             throw new IllegalStateException();
 
         costMap = new HashMap<Integer, CostPath>();
-
-
-        costMap.put(startID, new CostPath(startID));
-        costMap.get(startID).costToGetHere = 0;
-        costMap.get(startID).complete = true;
-
-        nextCostPathQueue.add(costMap.get(startID));
+        CostPath startCostPath = new CostPath(startID, -1, -1, true, 0.0);
+        costMap.put(startID, startCostPath);
 
         int curVID = startID;
         boolean finished = false;
@@ -162,11 +154,16 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
                 double curEdgeWeight = weighing.weight(graph.getAttribute(eID));
 
                 int nextVID = graph.getTarget(eID);
+                if (nextVID == curVID)
+                    nextVID = graph.getSource(eID);
+
+
                 CostPath costPathToNextVertex = costMap.get(nextVID);
 
                 if (costPathToNextVertex == null)//create it
                 {
                     costPathToNextVertex = new CostPath(nextVID, curVID, eID, false, curEdgeWeight + curVIDCostPath.costToGetHere);
+                    costMap.put(nextVID, costPathToNextVertex);
                     nextCostPathQueue.add(costPathToNextVertex);
                 }
                 else
@@ -186,46 +183,22 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
                     }
                 }
             }
-
-
             //find smallest cost non-completed costPath
-            Iterator<CostPath> citr = nextCostPathQueue.iterator();
-            boolean keepLooking = true;
-
-            CostPath nextCostPath;
-            while (citr.hasNext() && keepLooking)
+            if (nextCostPathQueue.isEmpty())
             {
-                nextCostPath = citr.next();
-                keepLooking = nextCostPath.complete;
-                curVID = nextCostPath.vID;
+                finished = true;
+                break;
             }
-            if(keepLooking)
-                throw new Error("shouldn't happen");//TODO
 
 
-
-
-
+            CostPath smallest = nextCostPathQueue.remove();
+            smallest.complete = true;
+            curVID = smallest.vID;
         }
 
+        needToCallComputeShortestPath = false;
 
     }
-
-/*
-    private void initializeCostMap()
-    {
-        costMap = new HashMap<Integer, CostPath>();
-
-        Iterator<Integer> itr = graph.getVertices().iterator();
-        while (itr.hasNext())
-        {
-            int vID = itr.next();
-            costMap.put(vID, new CostPath(vID));
-            if (vID == startID)
-                costMap.get(vID).costToGetHere = 0;
-        }
-    }*/
-
 
     /**
      * Returns the path from the start vertex to the end vertex provided
@@ -240,38 +213,36 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
     @Override
     public List<Integer> getPath(int endId) throws IllegalArgumentException, IllegalStateException
     {
-
-        List<Integer> edgePath = getEdgePath(endId);
-        List<Integer> verts = new ArrayList<Integer>();
-
-        Iterator<Integer> itr = edgePath.iterator();
-
-
-        int eid = -1;
-        while (itr.hasNext())
-        {
-            eid = itr.next();
-            verts.add(graph.getSource(eid));
-        }
-        if (eid != -1)
-            verts.add(graph.getTarget(eid));
-
-        return verts;
-    }
-
-
-    private List<Integer> getEdgePath(int endVID) throws IllegalArgumentException, IllegalStateException
-    {
         if (needToCallComputeShortestPath)
             throw new IllegalStateException("computeShortestPath() has not been called yet");
 
         //throws IllegalArgumentException if endId is not valid
-        graph.getData(endVID);
+        if (!graph.getVertices().contains(endId))
+            throw new IllegalArgumentException("No such vertex ID " + endId);
 
-        //TODO
 
-        return null;
+        Stack<Integer> stackPath = new Stack<Integer>();
+
+        CostPath cur = costMap.get(endId);
+
+        while (cur != null)
+        {
+            if (cur.srcVID == -1)//then we one away from the start
+                stackPath.push(startID);
+            else
+                stackPath.push(cur.vID);
+
+            cur = costMap.get(cur.srcVID);
+        }
+
+        ArrayList<Integer> retList = new ArrayList<Integer>();
+        while (!stackPath.isEmpty())
+            retList.add(stackPath.pop());
+
+
+        return retList;
     }
+
 
     /**
      * Returns the cost of the shortest path from the start vertex to the end vertex where
@@ -286,19 +257,18 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
     @Override
     public double getCost(int endId) throws IllegalArgumentException, IllegalStateException
     {
+        if (needToCallComputeShortestPath)
+            throw new IllegalStateException("computeShortestPath() has not been called yet");
 
-        List<Integer> shortestPath = getEdgePath(endId);
+        //throws IllegalArgumentException if endId is not valid
+        graph.getData(endId);
 
-        double totalCost = 0.0;
+        CostPath cur = costMap.get(endId);
 
-        Iterator<Integer> itr = shortestPath.iterator();
+        if (cur == null)
+            throw new IllegalArgumentException("No way to reach vertex " + endId + " from " + startID);
 
-
-        while (itr.hasNext())
-            totalCost += weighing.weight(graph.getAttribute(itr.next()));
-
-        return totalCost;
-
+        return cur.costToGetHere;
     }
 
 }

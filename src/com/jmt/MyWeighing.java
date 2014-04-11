@@ -5,14 +5,14 @@ package com.jmt;
  */
 public class MyWeighing implements Weighing<Street>
 {
-    MyGraph<Coordinate, Street> graph;
-    boolean isDirected;
+    Graph<Coordinate, Street> graph;
 
-    public MyWeighing(MyGraph<Coordinate, Street> graph, boolean isDirected)
+
+    public MyWeighing(Graph<Coordinate, Street> graph)
     {
-        this.isDirected = isDirected;
         this.graph = graph;
     }
+
 
     /**
      * Computes the weight of the edge

@@ -12,7 +12,7 @@ public class GraphHandler<V, E>
 {
 
     private Graph<V, E> mainGraph;
-    private boolean isDirected;
+    //    private boolean isDirected;
 
     private ArrayList<GraphSearchProcessor<V, E>> graphSearchProcessors;
 
@@ -21,16 +21,15 @@ public class GraphHandler<V, E>
 
     public GraphHandler(Graph<V, E> graph, boolean isDirected)
     {
-        setGraph(graph, isDirected);
+        setGraph(graph);//isDirected);
     }
 
-    private void setGraph(Graph<V, E> graph, boolean isDirected)
+    private void setGraph(Graph<V, E> graph)
     {
         if (graph == null)
             throw new NullPointerException();
 
         mainGraph = graph;
-        this.isDirected = isDirected;
 
         graphSearchProcessors = new ArrayList<GraphSearchProcessor<V, E>>();
     }
@@ -119,7 +118,7 @@ public class GraphHandler<V, E>
                 int curEdgeID = cur.edgesOut.next();
                 VertexInfo curTarget = getVertexInfo(mainGraph.getTarget(curEdgeID));
 
-                if (curTarget.searchState != DiscoverState.PROCESSED || isDirected) // || isDirected
+                if (curTarget.searchState != DiscoverState.PROCESSED)//TODO|| isDirected)
                     processEdge(curEdgeID, cur.vID, curTarget.vID);
 
                 if (curTarget.searchState == DiscoverState.UNDISCOVERED)
@@ -139,7 +138,7 @@ public class GraphHandler<V, E>
     }
 
 
-    private VertexInfo getVertexInfo(int vID)
+    public VertexInfo getVertexInfo(int vID)
     {
         VertexInfo ret = vertInfo.get(vID);
         if (ret == null)
@@ -239,7 +238,7 @@ public class GraphHandler<V, E>
 
     public void doDFS(int startVID)
     {
-        if(getVertexState(startVID)!=DiscoverState.UNDISCOVERED)
+        if (getVertexState(startVID) != DiscoverState.UNDISCOVERED)
             throw new IllegalStateException("Vertex " + startVID + " has already been discovered.");
 
         int lastDiscovererVID = -1;//null
@@ -296,7 +295,7 @@ public class GraphHandler<V, E>
                     boolean curChildHasBeenProcessed = curNeighbor.searchState == DiscoverState.PROCESSED;
 
 
-                    if (!theCurNeighborHasDiscoveredUs && !weDiscoveredTheCurChild && (curChildHasBeenProcessed || isDirected))
+                    if (!theCurNeighborHasDiscoveredUs && !weDiscoveredTheCurChild)//TODO && (curChildHasBeenProcessed || isDirected))
                         processEdge(curEdgeID, cur.vID, curNeighbor.vID);
                 }
             }
@@ -335,7 +334,8 @@ public class GraphHandler<V, E>
 
     private int searchTime = 1;
 
-    private class VertexInfo
+
+    public class VertexInfo
     {
         protected Iterator<Integer> edgesOut;    //used to keep track of the the current neighbor this vertex is exploring
         protected int searchDiscovererVID;//id of the vertex that discovered this vertex
@@ -353,6 +353,12 @@ public class GraphHandler<V, E>
             searchDiscovererVID = -1;
             edgesOut = mainGraph.getEdgesOf(vID).iterator();
         }
+
+        public int getDiscoverorVID()
+        {
+            return searchDiscovererVID;
+        }
+
 
     }
 
