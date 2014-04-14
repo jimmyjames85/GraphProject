@@ -91,10 +91,17 @@ public class Tester
     {
 
 
+
+
+
         //Load ames map
         HashMap<Integer, Integer> fileToGraphVIDMap = new HashMap<Integer, Integer>();
-        Graph<Coordinate, Street> amesGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/newAmes.txt", false, fileToGraphVIDMap);
+        Graph<Coordinate, Street> amesGraph = GraphFactory.loadGraph("/home/jim/IdealProjects/GraphProject/src/ames.txt", false, fileToGraphVIDMap);
         HashMap<Integer, Integer> graphToFileVIDMap = inverseHash(fileToGraphVIDMap);
+
+
+        new GraphGui(amesGraph);
+
 
         //Ingrediants DAG
         Graph<Integer, String> ingredientsGraph = GraphFactory.produceIngredientOrder();
