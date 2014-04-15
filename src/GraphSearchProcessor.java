@@ -1,5 +1,3 @@
-package com.jmt;
-
 /**
  * Created by jim on 4/8/14.
  */

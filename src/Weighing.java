@@ -1,6 +1,3 @@
-package com.jmt;
-
-
 /**
  * An interface that defines a weight distribution over
  * a set of edges to be used in routing algorithms.

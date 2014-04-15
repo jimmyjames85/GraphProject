@@ -1,11 +1,8 @@
-package com.jmt;
-
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IllegalFormatException;
 import java.util.Scanner;
 
 /**
@@ -168,10 +165,11 @@ public class GraphFactory
     {
         MyGraph<Integer, String> graph = new MyGraph<Integer, String>();
 
-        int[] vid = new int[7];
 
-        //                     A    B     C     D     E     F     G
-        int[] ingredients = {1055, 371, 2874, 2351, 2956, 1171, 1208};
+
+        //                     A    B     C     D     E     F     G    S
+        int[] ingredients = {1055, 371, 2874, 2351, 2956, 1171, 1208, 2893};
+        int[] vid = new int[ingredients.length];
 
         for (int i = 0; i < vid.length; i++)
             vid[i] = graph.addVertex(ingredients[i]);
@@ -200,6 +198,17 @@ public class GraphFactory
         graph.addEdge(vid[3], vid[6], "D before G");//
         graph.addEdge(vid[4], vid[6], "E before G");//
         graph.addEdge(vid[5], vid[6], "F before G");//
+
+
+        //S is the starting point
+        graph.addEdge(vid[7], vid[0], "A before G");//
+        graph.addEdge(vid[7], vid[1], "B before G");//
+        graph.addEdge(vid[7], vid[2], "C before G");//
+        graph.addEdge(vid[7], vid[3], "D before G");//
+        graph.addEdge(vid[7], vid[4], "E before G");//
+        graph.addEdge(vid[7], vid[5], "F before G");//
+        graph.addEdge(vid[7], vid[6], "F before G");//
+
 
         return graph;
     }

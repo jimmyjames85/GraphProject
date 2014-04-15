@@ -1,14 +1,15 @@
-package com.jmt;
-
+import java.util.List;
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+
 
 /**
  * Created by jim on 4/12/14.
  */
-public class GraphGui extends JFrame
+public class GuiGraph extends JComponent
 {
 
     private Graph<Coordinate, Street> graph;
@@ -16,16 +17,30 @@ public class GraphGui extends JFrame
     private double graphWidth, graphHeight;
 
 
-    public GraphGui(Graph<Coordinate, Street> graph)
+    private ArrayList<Integer> drawEdgeList;
+
+    private ArrayList<List<Integer>> drawPathList;
+
+
+    public GuiGraph(Graph<Coordinate, Street> graph)
     {
         this.graph = graph;
+        drawEdgeList = new ArrayList<Integer>();
+        drawPathList = new ArrayList<List<Integer>>();
 
-        initGui();
         calculateMinMaxCoords();
-
-
     }
 
+
+    public void addPath(java.util.List<Integer> path)
+    {
+        drawPathList.add(path);
+    }
+
+    public void addDrawEdge(int EID)
+    {
+        drawEdgeList.add(EID);
+    }
 
     private void calculateMinMaxCoords()
     {
@@ -36,8 +51,8 @@ public class GraphGui extends JFrame
 
         Coordinate coord = graph.getData(vertItr.next());
         double minX, maxX, minY, maxY;
-        minX = maxX = coord.latitude;
-        minY = maxY = coord.longitude;
+        minX = maxX = coord.longitude;
+        minY = maxY = coord.latitude;
 
 
         while (vertItr.hasNext())
@@ -46,14 +61,14 @@ public class GraphGui extends JFrame
             coord = graph.getData(vID);
 
 
-            if (coord.latitude < minX)
-                minX = coord.latitude;
-            if (coord.latitude > maxX)
-                maxX = coord.latitude;
-            if (coord.longitude < minY)
-                minY = coord.longitude;
-            else if (coord.longitude > maxY)
-                maxY = coord.longitude;
+            if (coord.longitude < minX)
+                minX = coord.longitude;
+            if (coord.longitude > maxX)
+                maxX = coord.longitude;
+            if (coord.latitude < minY)
+                minY = coord.latitude;
+            else if (coord.latitude > maxY)
+                maxY = coord.latitude;
         }
 
         this.graphMaxX = maxX;
@@ -62,16 +77,6 @@ public class GraphGui extends JFrame
         this.graphMinY = minY;
         this.graphWidth = graphMaxX - graphMinX;
         this.graphHeight = graphMaxY - graphMinY;
-
-    }
-
-
-    private void initGui()
-
-    {
-        setSize(500, 500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
 
     }
 
@@ -96,18 +101,44 @@ public class GraphGui extends JFrame
             Coordinate coordB = graph.getData(graph.getTarget(edgeID));
 
             g.setColor(Color.lightGray);
-            String street =graph.getAttribute(edgeID).getStreetName();
 
-            if(street.contains("Mortensen"))
-            {
+            if (drawEdgeList.contains(edgeID))
                 g.setColor(Color.RED);
-                System.out.println(coordA + " " + coordB);
-            }
-            else if  (street.length()>2)
-                g.setColor(Color.BLUE);
-
 
             drawEdge(coordA, coordB, g, width, height);
+        }
+
+
+        g.setColor(Color.BLUE);
+
+
+        Iterator<List<Integer>> pathItr = drawPathList.iterator();
+        while (pathItr.hasNext())
+        {
+            Iterator<Integer> vertItr = pathItr.next().iterator();
+
+            Coordinate a = null;
+            Coordinate b = null;
+            if (vertItr.hasNext())
+                a = graph.getData(vertItr.next());
+
+
+            while (vertItr.hasNext())
+            {
+                if (b == null)
+                    g.setColor(Color.GREEN);
+                else
+                    g.setColor(Color.BLUE);
+
+
+                b = graph.getData(vertItr.next());
+
+                if(!vertItr.hasNext())
+                    g.setColor(Color.RED);
+
+                drawEdge(a, b, g, width, height);
+                a = b;
+            }
         }
 
         g.setColor(Color.black);
@@ -117,32 +148,32 @@ public class GraphGui extends JFrame
             Coordinate curCoord = graph.getData(vertItr.next());
             drawCoordinate(curCoord, g, width, height);
         }
+
+
     }
 
     private void drawCoordinate(Coordinate coord, Graphics g, int guiWidth, int guiHeight)
     {
-        double graphX = coord.getLatitude();
-        double graphY = coord.getLongitude();
+        double graphX = coord.getLongitude();
+        double graphY = coord.getLatitude();
 
         int guiX = (int) (guiWidth * ((graphX - graphMinX) / graphWidth));
-        int guiY = (int) (guiHeight * ((graphY - graphMinY) / graphHeight));
+        int guiY = guiHeight - (int) (guiHeight * ((graphY - graphMinY) / graphHeight));
         g.drawLine(guiX, guiY, guiX, guiY);
     }
 
-
     private void drawEdge(Coordinate coordA, Coordinate coordB, Graphics g, int guiWidth, int guiHeight)
     {
-
-        double graphAX = coordA.getLatitude();
-        double graphAY = coordA.getLongitude();
-        double graphBX = coordB.getLatitude();
-        double graphBY = coordB.getLongitude();
+        double graphAX = coordA.getLongitude();
+        double graphAY = coordA.getLatitude();
+        double graphBX = coordB.getLongitude();
+        double graphBY = coordB.getLatitude();
 
 
         int guiAX = (int) (guiWidth * ((graphAX - graphMinX) / graphWidth));
-        int guiAY = (int) (guiHeight * ((graphAY - graphMinY) / graphHeight));
+        int guiAY = guiHeight - (int) (guiHeight * ((graphAY - graphMinY) / graphHeight));
         int guiBX = (int) (guiWidth * ((graphBX - graphMinX) / graphWidth));
-        int guiBY = (int) (guiHeight * ((graphBY - graphMinY) / graphHeight));
+        int guiBY = guiHeight - (int) (guiHeight * ((graphBY - graphMinY) / graphHeight));
 
         g.drawLine(guiAX, guiAY, guiBX, guiBY);
     }
