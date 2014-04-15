@@ -1,7 +1,7 @@
+package com.jmt;
+
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.StringReader;
 import java.util.*;
 import java.util.List;
 

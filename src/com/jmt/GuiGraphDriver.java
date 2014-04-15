@@ -1,10 +1,10 @@
+package com.jmt;
+
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 /**
  * Created by jim on 4/14/14.
