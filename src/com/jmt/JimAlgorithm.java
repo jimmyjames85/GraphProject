@@ -406,7 +406,7 @@ public class JimAlgorithm<V, E> implements CoffeeSolver<V, E>
         System.out.println();
 
         if (gui != null)
-            gui.addPath(path);
+            gui.addPath(path, Color.cyan);
 
 
         MyDijkstra<Coordinate, Street> dijkstra = new MyDijkstra<Coordinate, Street>();

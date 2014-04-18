@@ -271,4 +271,19 @@ public class MyDijkstra<V, E> implements Dijkstra<V, E>
         return cur.costToGetHere;
     }
 
+
+    public int getConnectingEID(int endVID)
+    {
+
+        if(needToCallComputeShortestPath)
+            throw new IllegalStateException("computeShortestPath() has not been called yet");
+
+        CostPath path = costMap.get(endVID);
+        if (path == null)
+            throw new IllegalArgumentException("Cannot reach vID from " + startID);
+
+
+        return path.connectingEID;
+    }
+
 }

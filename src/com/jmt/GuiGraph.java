@@ -22,21 +22,26 @@ public class GuiGraph extends JComponent
     private ArrayList<Integer> drawEdgeList;
 
     private ArrayList<List<Integer>> drawPathList;
-
+    private ArrayList<Color> drawPathListColor;
 
     public GuiGraph(Graph<Coordinate, Street> graph)
     {
         this.graph = graph;
         drawEdgeList = new ArrayList<Integer>();
+
         drawPathList = new ArrayList<List<Integer>>();
+        drawPathListColor = new ArrayList<Color>();
 
         calculateMinMaxCoords();
+
     }
 
 
-    public void addPath(java.util.List<Integer> path)
+    public void addPath(java.util.List<Integer> path, Color color)
     {
         drawPathList.add(path);
+        drawPathListColor.add(color);
+
     }
 
     public void addDrawEdge(int EID)
@@ -95,6 +100,7 @@ public class GuiGraph extends JComponent
         g.fillRect(0, 0, width, height);
 
 
+        //Draw all the edges
         Iterator<Integer> edgeItr = graph.getEdges().iterator();
         while (edgeItr.hasNext())
         {
@@ -114,9 +120,14 @@ public class GuiGraph extends JComponent
         g.setColor(Color.BLUE);
 
 
+        //Draw any paths in Blue
+
         Iterator<List<Integer>> pathItr = drawPathList.iterator();
+        Iterator<Color> colorItr = drawPathListColor.iterator();
+
         while (pathItr.hasNext())
         {
+            Color color = colorItr.next();
             Iterator<Integer> vertItr = pathItr.next().iterator();
 
             Coordinate a = null;
@@ -125,17 +136,20 @@ public class GuiGraph extends JComponent
                 a = graph.getData(vertItr.next());
 
 
+            g.setColor(color);
+
             while (vertItr.hasNext())
             {
-                if (b == null)
+
+               /* if (b == null)
                     g.setColor(Color.GREEN);
                 else
-                    g.setColor(Color.BLUE);
+                    g.setColor(Color.BLUE);*/
 
 
                 b = graph.getData(vertItr.next());
 
-                if(!vertItr.hasNext())
+                if (!vertItr.hasNext())
                     g.setColor(Color.RED);
 
                 drawEdge(a, b, g, width, height);
@@ -143,6 +157,8 @@ public class GuiGraph extends JComponent
             }
         }
 
+
+        //Then draw all the verticies
         g.setColor(Color.black);
         Iterator<Integer> vertItr = graph.getVertices().iterator();
         while (vertItr.hasNext())

@@ -25,11 +25,9 @@ public class GuiGraphDriver extends JFrame implements ActionListener
     }
 
 
-    public void addPath(List<Integer> path)
+    public void addPath(List<Integer> path, Color color)
     {
-
-
-        guiGraph.addPath(path);
+        guiGraph.addPath(path,color);
     }
 
     private void init()
